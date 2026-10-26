@@ -1,4 +1,4 @@
-# Hanzi Drills
+# Learning Chinese
 
 Free practice for beginner Mandarin: quizzes for meaning, pinyin, tones and listening, sentence building, prices, dialogues and stroke-order writing practice. It covers lessons 1 to 5 of 汉语口语速成 入门篇 (Short-term Spoken Chinese, Threshold).
 
