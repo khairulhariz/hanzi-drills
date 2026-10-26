@@ -1,6 +1,6 @@
 {
-  "name": "Hanzi Drills",
-  "short_name": "Hanzi Drills",
+  "name": "Learning Chinese",
+  "short_name": "Learning Chinese",
   "description": "Daily review, quizzes, dialogues and stroke-order practice for beginner Chinese.",
   "start_url": "./",
   "scope": "./",
