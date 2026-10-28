@@ -180,6 +180,8 @@ dialog::backdrop{background:rgb(0 0 0 / .45)}
 .turn{display:flex;flex-direction:column;gap:10px;padding:14px;border:1.5px dashed var(--jade);border-radius:var(--r)}
 .turn input{font:inherit;font-size:1.2rem;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);width:100%}
 .turn input:focus-visible{outline:3px solid var(--jade);outline-offset:1px}
+.selfcheck{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.selfcheck .mn{font-size:1.15rem;font-weight:600}
 .toggles{display:flex;flex-wrap:wrap;gap:8px}
 @media (max-width:520px){
   .opts{grid-template-columns:minmax(0,1fr)}
@@ -216,6 +218,10 @@ dialog::backdrop{background:rgb(0 0 0 / .45)}
       <label class="chip"><input type="radio" name="len" id="len10" value="10" checked><span>10</span></label>
       <label class="chip"><input type="radio" name="len" id="len20" value="20"><span>20</span></label>
       <label class="chip"><input type="radio" name="len" id="len40" value="40"><span>40</span></label>
+    </div>
+    <div class="grp"><span class="label">Typed pinyin</span>
+      <label class="chip"><input type="radio" name="tones" id="tonesreq" value="1" checked><span>Tones required</span></label>
+      <label class="chip"><input type="radio" name="tones" id="tonesopt" value="0"><span>Tones optional</span></label>
     </div>
   </div>
 
@@ -914,11 +920,31 @@ const streakNow = () => streak.last >= today() - 1 ? streak.n : 0;
 function dailyItem(c){
   const b = srs[c.h] ? srs[c.h].b : 0;
   const canWrite = window.HanziWriter && [...c.h].every(ch => STROKES[ch]) && c.n <= 3;
-  let g = ['meaning', 'find', 'pinyin', hasSpeech() ? 'listen' : 'tones', canWrite ? 'write' : 'meaning'][b];
-  if (!g) g = shuffle(['meaning', 'find', 'pinyin', 'tones', canWrite ? 'write' : 'find'])[0];
+  // easy choices first, then typing from memory as the item climbs the boxes
+  let g = ['meaning', 'find', 'recall', hasSpeech() ? 'listen' : 'tones', 'fromen', canWrite ? 'write' : 'recall'][b];
+  if (!g) g = shuffle(['recall', 'fromen', canWrite ? 'write' : 'recall'])[0];
   const it = GEN[g]({ ...pools(), ch: [c] }, new Set());
   it.srs = c.h;
   return it;
+}
+
+// ---------- typed pinyin ----------
+// Accepts tone marks (lǎoshī) or numbers (lao3shi1); spaces, apostrophes and case are ignored, v = ü.
+// Neutral tones need no mark. With "Tones optional" only the letters are compared.
+const tonesRequired = () => { const r = document.querySelector('input[name="tones"]:checked'); return !r || r.value === '1'; };
+function pyParts(str){
+  const MARK = {'\u0304':1, '\u0301':2, '\u030c':3, '\u0300':4};
+  let letters = '', tones = [];
+  for (const ch of str.normalize('NFD').toLowerCase()) {
+    if (MARK[ch]) tones.push(MARK[ch]);
+    else if (/[1-4]/.test(ch)) tones.push(+ch);
+    else if (/[a-z]/.test(ch)) letters += ch === 'v' ? 'u' : ch;
+  }
+  return { letters, tones: tones.join('') };
+}
+function pinyinOk(input, c){
+  const want = pyParts(c.syl.join(' ')), got = pyParts(input);
+  return got.letters.length > 0 && got.letters === want.letters && (!tonesRequired() || got.tones === want.tones);
 }
 
 const LESSONS = [1,2,3,4,5,6,99];  // 99 = words from the class test paper
@@ -1070,6 +1096,14 @@ const GEN = {
     const optNums = shuffle([zh, ...alt.slice(0, 3)]).map(x => ({label: zhToNum(x), val:x}));
     return { type:'mc', keys:'', prompt:`<p class="q">How much is this?</p><p class="sent">${zh}</p>`, opts: optNums, ans:zh, reveal, speak:zh };
   },
+  recall(P, used){
+    const c = pickFrom(P.ch, used, x => 'r'+x.h);
+    return { type:'recall', keys:c.h, c, reveal:info(c) };
+  },
+  fromen(P, used){
+    const c = pickFrom(P.ch, used, x => 'z'+x.h);
+    return { type:'fromen', keys:c.h, c, reveal:info(c) };
+  },
   write(P, used){
     const c = pickFrom(P.ch, used, x => 'x'+x.h);
     const w = c.n === 1 ? WORDS.find(w => split(w.w).includes(c.h) && !/^(.)\1$/.test(w.w)) : null;
@@ -1109,6 +1143,7 @@ function pyOf(text){
 
 const QUIZZES = [
   {id:'meaning', name:'Meaning', d:'See a character, pick what it means.', skill:'recognise'},
+  {id:'recall', name:'Recall', d:'No choices to guess from. See the Hanzi, type its pinyin, then check yourself on the meaning.', skill:'recognise'},
   {id:'find', name:'Find the character', d:'Pinyin and meaning given. Spot the right Hanzi among look-alikes.', skill:'recognise'},
   {id:'wordbuild', name:'Word builder', d:'One character is missing from a word. Put it back.', skill:'recognise'},
   {id:'pinyin', name:'Read it', d:'See a character, pick the correct pinyin.', skill:'read'},
@@ -1120,10 +1155,11 @@ const QUIZZES = [
   {id:'situ', name:'What do you say?', d:'Real situations from class and daily life. Pick the right reply.', skill:'use'},
   {id:'prices', name:'Prices', d:'Read and say prices in 块 and 毛, like at a shop. Watch out for 两 and 二.', skill:'numbers'},
   {id:'dialogs', name:'Dialogues', d:'Read real conversations, then role-play them: type your lines in Hanzi or pinyin.', skill:'speak'},
+  {id:'fromen', name:'Write from English', d:'See the English, type the Hanzi with your Chinese keyboard.', skill:'write'},
   {id:'write', name:'Write it', d:'Draw each character stroke by stroke. Stroke order is checked.', skill:'write'},
 ];
 const SKILLS = {recognise:['认','Recognise'], read:['读','Read'], listen:['听','Listen'], use:['用','Use in sentences'], numbers:['数','Numbers and money'], speak:['说','Conversations'], write:['写','Write']};
-const MIX = ['meaning','find','pinyin','tones','wordbuild','fill','situ','sentmean','build','meaning','find','fill','build'];
+const MIX = ['meaning','recall','find','pinyin','tones','wordbuild','fill','situ','sentmean','build','meaning','find','fill','build'];
 
 // ---------- views ----------
 function setTab(v){ document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v)); }
@@ -1205,7 +1241,7 @@ function start(id){
   else if (id === 'weak') {
     const wk = Object.keys(weak).map(h => BY[h]).filter(Boolean);
     P.ch = wk; P.words = WORDS.filter(w => wk.some(c => w.w.includes(c.h)));
-    gens = Array.from({length: qlen()}, (_, i) => ['meaning','find','pinyin','write','wordbuild'][i % 5]);
+    gens = Array.from({length: qlen()}, (_, i) => ['recall','find','fromen','write','wordbuild'][i % 5]);
     if (!P.words.length) gens = gens.map(g => g === 'wordbuild' ? 'find' : g);
   } else gens = Array(qlen()).fill(id);
   if (!P.ch.length) { view.innerHTML = '<div class="empty">Pick at least one lesson first.</div>'; return; }
@@ -1317,6 +1353,8 @@ function render(){
   if (it.type === 'mc') renderMC(it);
   else if (it.type === 'build') renderBuild(it);
   else if (it.type === 'type') renderType(it);
+  else if (it.type === 'recall') renderRecall(it);
+  else if (it.type === 'fromen') renderFromEn(it);
   else renderWrite(it);
 }
 
@@ -1353,6 +1391,63 @@ function renderMC(it){
     record(it, ok, o.val);
     nextBtn();
   });
+}
+
+function typedBox(placeholder, extra = ''){
+  return `<div class="turn"><input id="tin" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${placeholder}" aria-label="Your answer">
+    <div class="actions" style="margin-top:0">${extra}<button class="btn ghost sm" id="tshow">I don't know</button><button class="btn" id="tcheck">Check</button></div></div>`;
+}
+function onTyped(check){
+  const inp = $('#tin'); inp.focus({ preventScroll: true });
+  const go = () => { const v = inp.value.trim(); if (!v) { inp.focus(); return; } check(v); };
+  $('#tcheck').onclick = go;
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing && !inp.disabled) go(); });
+  return inp;
+}
+function lockTyped(){ $('#tin').disabled = true; $('#tcheck').hidden = true; $('#tshow').hidden = true; view.querySelectorAll('.turn .ghost').forEach(b => b.hidden = true); }
+const sayBtn = h => hasSpeech() ? ` <button class="icon-btn" data-say="${esc(h)}" aria-label="Play sound">${SPEAK_SVG}</button>` : '';
+
+function renderRecall(it){
+  const c = it.c;
+  view.innerHTML = frame(`<div class="prompt"><p class="q">Type the pinyin${tonesRequired() ? ' with tones (lǎoshī or lao3shi1)' : ' (tones optional)'}</p>${charBox(c.h)}</div>
+    ${typedBox('Pinyin')}<div id="fb"></div><div id="self"></div><div class="actions"><button class="btn" id="next" hidden>Next</button></div>`);
+  const meaningStep = (pyRight, yours) => {
+    lockTyped(); say(c.h);
+    $('#fb').innerHTML = `<div class="feedback ${pyRight ? 'ok' : 'no'}" role="status"><span class="verdict">${pyRight ? '对！ Pinyin correct' : '不对 The pinyin is'}</span><b>${c.py}</b>${!pyRight && yours ? `<span class="why">You wrote: ${esc(yours)}</span>` : ''}${sayBtn(c.h)}</div>`;
+    if (!pyRight) { $('#self').innerHTML = `<div class="selfcheck"><span class="label">Meaning</span><span class="mn">${esc(c.m)}</span></div>`; record(it, false, yours || '(did not know)'); return nextBtn(); }
+    $('#self').innerHTML = `<div class="selfcheck"><span class="label">Now, what does it mean? Say it in your head, then check.</span>
+      <div class="actions" style="margin-top:0"><button class="btn" id="reveal">Show meaning</button></div></div>`;
+    $('#reveal').onclick = () => {
+      $('#self').innerHTML = `<div class="selfcheck"><span class="label">Meaning</span><span class="mn">${esc(c.m)}</span><span class="note">Did you know it?</span>
+        <div class="actions" style="margin-top:0"><button class="btn ghost" id="knewno">Not quite</button><button class="btn" id="knewyes">I knew it</button></div></div>`;
+      const done = ok => { $('#knewno').disabled = $('#knewyes').disabled = true; record(it, ok, ok ? yours : yours + ' (meaning not known)'); nextBtn(); };
+      $('#knewyes').onclick = () => done(true); $('#knewno').onclick = () => done(false);
+      $('#knewyes').focus();
+    };
+    $('#reveal').focus();
+  };
+  onTyped(v => meaningStep(pinyinOk(v, c), v));
+  $('#tshow').onclick = () => meaningStep(false, '');
+}
+
+function renderFromEn(it){
+  const c = it.c;
+  view.innerHTML = frame(`<div class="prompt"><p class="q">Type this ${kind(c)} in Hanzi</p><p class="big">${esc(c.m)}</p><p class="note" id="pyhint" hidden>${c.py}</p></div>
+    ${typedBox('Use your Chinese keyboard', '<button class="btn ghost sm" id="hintpy">Show pinyin</button>')}<div id="fb"></div><div class="actions"><button class="btn" id="next" hidden>Next</button></div>`);
+  let hinted = false;
+  $('#hintpy').onclick = () => { hinted = true; $('#pyhint').hidden = false; $('#hintpy').hidden = true; $('#tin').focus(); };
+  const finish = (ok, yours) => {
+    lockTyped();
+    $('#fb').innerHTML = feedback(ok, info(c) + (ok && hinted ? '<span class="why">With the pinyin hint</span>' : '') + (!ok && yours ? `<span class="why">You wrote: <span class="hz">${esc(yours)}</span></span>` : ''), sayBtn(c.h));
+    record(it, ok && !hinted, yours || '(did not know)');
+    nextBtn();
+  };
+  onTyped(v => {
+    const z = normZh(v);
+    if (!z) { $('#fb').innerHTML = '<p class="note">Type Chinese characters: switch your keyboard to Chinese (pinyin) first.</p>'; return; }
+    finish(z === c.h || (BY[z] && BY[z].m === c.m), z);
+  });
+  $('#tshow').onclick = () => finish(false, '');
 }
 
 function renderBuild(it){
@@ -1433,6 +1528,7 @@ function results(){
   const msg = pct === 100 ? '太好了！ Perfect.' : pct >= 80 ? '很好！ Very good.' : pct >= 50 ? 'Good start. Review the ones below.' : 'Keep going. Study the list below, then try again.';
   const row = ({it, yours}) => {
     if (it.type === 'build') return `<li><span class="hz">${it.s.text}</span><b>${it.s.p}</b><span>${esc(it.s.m)}</span><span class="yours">You built: <span class="hz" style="font-size:1rem">${esc(yours)}</span></span></li>`;
+    if (it.type === 'recall' || it.type === 'fromen') return `<li>${info(it.c)}<span class="yours">You wrote: ${esc(yours)}</span></li>`;
     if (it.type === 'type') return `<li><span class="hz">${it.x.d.map(([w, t]) => t.replace('＿', it.x.a[0])).join(' ')}</span><span>${esc(it.x.en)}</span><span class="yours">You wrote: ${esc(yours)}</span></li>`;
     if (it.type === 'write') return `<li>${info(it.c)}<span class="yours">Write it 5 times on paper</span></li>`;
     return `<li>${it.reveal}<span class="yours">You chose: ${esc(yours)}</span></li>`;
@@ -1542,6 +1638,8 @@ document.addEventListener('click', e => {
   if (t.id === 'next') { Q.i++; return render(); }
   if (t.id === 'dlgclose') { $('#dlg').close(); }
 });
+if (store('hanzi-tones') === 0) $('#tonesopt').checked = true;
+document.querySelectorAll('input[name="tones"]').forEach(r => r.addEventListener('change', () => store('hanzi-tones', tonesRequired() ? 1 : 0)));
 document.querySelectorAll('.settings input').forEach(inp => inp.addEventListener('change', () => {
   if (!lessons().length) { inp.checked = true; }
   updateCount();
