@@ -761,7 +761,7 @@ const EXAM = [
     {bank:BANK_MW, s:'一＿教室', a:'个', p:'yí gè jiàoshì', en:'one classroom'},
     {bank:BANK_MW, s:'两＿朋友', a:'个', p:'liǎng gè péngyou', en:'two friends'},
   ]},
-  {id:'t3', zh:'选择合适的词语', en:'Choose the proper word from the bank', pts:2, full:10, kind:'bank', items:[
+  {id:'t3', zh:'选择合适的词语', en:'Choose the right word to fill the gap', pts:2, full:10, kind:'bank', items:[
     {bank:BANK_L1, s:'老师：＿坐！', a:'请', p:'Qǐng zuò!', en:'Please sit down!'},
     {bank:BANK_L1, s:'A：＿！ B：不客气。', a:'谢谢', p:'Xièxie! Bú kèqi.', en:"Thank you! / You're welcome."},
     {bank:BANK_L1, s:'A：＿！ B：没关系。', a:'对不起', p:'Duìbuqǐ! Méi guānxi.', en:"Sorry! / It doesn't matter."},
@@ -1204,7 +1204,7 @@ function home(){
     <span class="stats"><span>${st ? `<b>${st}</b> day streak` : 'Start a streak today'}</span><span><b>${dp.known}</b> of ${dp.pool.length} learned</span><span><b>${dp.started}</b> started</span></span></span></button>`;
   let h = `<div class="qgrid" style="margin-bottom:22px">${daily}
     <button class="qcard feature" data-start="mixed"><b>Mixed test</b><small>A bit of everything, like a real class quiz: meaning, pinyin, tones, gaps and sentence building.</small></button>
-    <button class="qcard feature" data-start="examlist"><b>Class test practice</b><small>The 7 parts of your class test (tone changes, measure words, word bank, grammar, asking questions, word order, dialogues) with words from the lessons you choose.</small></button>
+    <button class="qcard feature" data-start="examlist"><b>Class test practice</b><small>The 7 parts of your class test (tone changes, measure words, fill the gap, grammar, asking questions, word order, dialogues) with words from the lessons you choose.</small></button>
     ${nWeak ? `<button class="qcard feature" data-start="weak"><b>My mistakes (${nWeak})</b><small>Drill only the characters you have missed before.</small></button>` : ''}
   </div><div class="skills">`;
   for (const [k,[zh,en]] of Object.entries(SKILLS)) {
@@ -1308,7 +1308,7 @@ function examItem(part, x){
       opts: shuffle(x.o).map(o => ({label:o, val:o})), ans:a, speak:full.join(''),
       reveal:`<span class="hz">${full.join(' ')}</span> <span>${esc(x.en)}</span>${why(x)}` }; }
   if (part.kind === 'bank') { const full = x.s.replace('＿', x.a);
-    return { ...base, type:'mc', hz:true, small:x.bank.some(o => o.length > 1), prompt:`${head}<p class="q">Choose a word from the bank</p><p class="sent">${gapify(x.s)}</p>`,
+    return { ...base, type:'mc', hz:true, small:x.bank.some(o => o.length > 1), prompt:`${head}<p class="q">Which word fits the gap?</p><p class="sent">${gapify(x.s)}</p>`,
       opts: x.bank.map(o => ({label:o, val:o})), ans:x.a, speak:full,
       reveal:`<span class="hz">${full}</span> <b>${x.p}</b> <span>${esc(x.en)}</span>${why(x)}` }; }
   if (part.kind === 'under') return { ...base, type:'mc',
