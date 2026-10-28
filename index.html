@@ -205,13 +205,12 @@ dialog::backdrop{background:rgb(0 0 0 / .45)}
 
   <div class="settings">
     <div class="grp"><span class="label">Lessons</span>
-      <label class="chip"><input type="checkbox" id="les1" value="1" checked><span><span class="hz">第1课</span>你好</span></label>
-      <label class="chip"><input type="checkbox" id="les2" value="2" checked><span><span class="hz">第2课</span></span></label>
-      <label class="chip"><input type="checkbox" id="les3" value="3" checked><span><span class="hz">第3课</span></span></label>
-      <label class="chip"><input type="checkbox" id="les4" value="4" checked><span><span class="hz">第4课</span></span></label>
-      <label class="chip"><input type="checkbox" id="les5" value="5" checked><span><span class="hz">第5课</span></span></label>
-      <label class="chip"><input type="checkbox" id="les6" value="6" checked><span><span class="hz">第6课</span></span></label>
-      <label class="chip"><input type="checkbox" id="les99" value="99" checked><span><span class="hz">测试</span>Test words</span></label>
+      <label class="chip" title="Lesson 1: Hello"><input type="checkbox" id="les1" value="1" checked><span><span class="hz">第1课</span><span class="hz">你好</span></span></label>
+      <label class="chip" title="Lesson 2: How are you?"><input type="checkbox" id="les2" value="2" checked><span><span class="hz">第2课</span><span class="hz">你好吗</span></span></label>
+      <label class="chip" title="Lesson 3: What do you want to eat?"><input type="checkbox" id="les3" value="3" checked><span><span class="hz">第3课</span><span class="hz">你吃什么</span></span></label>
+      <label class="chip" title="Lesson 4: How much is it?"><input type="checkbox" id="les4" value="4" checked><span><span class="hz">第4课</span><span class="hz">多少钱</span></span></label>
+      <label class="chip" title="Lesson 5: Where is the library?"><input type="checkbox" id="les5" value="5" checked><span><span class="hz">第5课</span><span class="hz">图书馆在哪儿</span></span></label>
+      <label class="chip" title="Lesson 6: Let me introduce"><input type="checkbox" id="les6" value="6" checked><span><span class="hz">第6课</span><span class="hz">我来介绍一下儿</span></span></label>
       <span class="count" id="poolcount"></span>
     </div>
     <div class="grp"><span class="label">Questions</span>
@@ -287,34 +286,11 @@ const CH = [
   ['聪明','cong1 ming5','clever',6], ['可爱','ke3 ai4','lovely, cute',6], ['看','kan4','to look',6], ['帅','shuai4','handsome',6],
   ['小','xiao3','small, little; (before a name) young …',6], ['保罗','bao3 luo2','Paul',6], ['德国','de2 guo2','Germany',6], ['西蒙','xi1 meng2','Simon',6], ['李英男','li3 ying1 nan2','Li Yingnan (a name)',6,'Lǐ Yīngnán'], ['法国','fa3 guo2','France',6], ['韩国','han2 guo2','Korea',6],
   ['这儿','zhe4 r5','here',6], ['国','guo2','country',6], ['公司','gong1 si1','company',6], ['女朋友','nü3 peng2 you5','girlfriend',6,'nǚ péngyou'], ['男朋友','nan2 peng2 you5','boyfriend',6,'nán péngyou'],
-  // Test words (lesson 99, shown as "测试 Test words"): vocabulary from the class test paper, 2026-10-27. Learned whole.
-  ['有','you3','to have; there is',99], ['跟','gen1','with; and',99],
-  ['还','hai2','also, in addition',99], ['哪','na3','which',99],
-  ['谁','shei2','who',99], ['几','ji3','how many (small numbers)',99], ['吧','ba5',"particle: suggestion (let's …)",99], ['怎么样','zen3 me5 yang4','how about it? how is it?',99],
-  ['月','yue4','month',99], ['斤','jin1','jin (500 g, measure word)',99], ['种','zhong3','kind, type (measure word)',99], ['支','zhi1','measure word for pens',99],
-  ['台','tai2','measure word for machines',99], ['口','kou3','measure word for family members',99], ['电脑','dian4 nao3','computer',99], ['面包','mian4 bao1','bread',99],
-  ['苹果','ping2 guo3','apple',99], ['水果','shui3 guo3','fruit',99], ['面包店','mian4 bao1 dian4','bakery',99], ['饭馆','fan4 guan3','restaurant',99],
-  ['祝','zhu4','to wish',99], ['差','cha4','to (the hour), short of',99],
-  ['中文','zhong1 wen2','Chinese (language, written)',99], ['课','ke4','class, lesson',99],
-  ['生日','sheng1 ri4','birthday',99], ['快乐','kuai4 le4','happy',99], ['礼物','li3 wu4','present, gift',99], ['新年','xin1 nian2','New Year',99],
-  ['家','jia1','home, family',99], ['工作','gong1 zuo4','work, job',99], ['做','zuo4','to do, to make',99],
-  ['安排','an1 pai2','plan, arrangement',99], ['开始','kai1 shi3','to start',99], ['见面','jian4 mian4','to meet up',99], 
-  ['想','xiang3','would like to, to want',99], ['先','xian1','first',99], ['然后','ran2 hou4','then, after that',99], ['一起','yi4 qi3','together',99,'yìqǐ'],
-  ['一共','yi2 gong4','in total',99,'yígòng'], ['一块儿','yi2 kuai4 r5','together (spoken)',99,'yíkuàir'], ['常常','chang2 chang2','often',99], ['每天','mei3 tian1','every day',99],
-  ['今天','jin1 tian1','today',99], ['明天','ming2 tian1','tomorrow',99], ['早上','zao3 shang5','morning',99], ['下午','xia4 wu3','afternoon',99],
-  ['现在','xian4 zai4','now',99], ['点','dian3',"o'clock",99], ['半','ban4','half (past)',99], ['上','shang4','to attend (class); on, up',99],
-  ['星期','xing1 qi1','week',99], ['星期天','xing1 qi1 tian1','Sunday',99], ['里边','li3 bian5','inside',99], ['前边','qian2 bian5','in front, ahead',99],
-  ['东边','dong1 bian5','east (side)',99], ['西边','xi1 bian5','west (side)',99], ['运动场','yun4 dong4 chang3','sports field',99], ['公园','gong1 yuan2','park',99],
-  ['教学楼','jiao4 xue2 lou2','teaching building',99], ['卫生间','wei4 sheng1 jian1','toilet, restroom',99], ['中国','zhong1 guo2','China',99],
-  ['姓','xing4','surname; to be surnamed',99], ['贵姓','gui4 xing4','your (honourable) surname?',99], ['营业员','ying2 ye4 yuan2','shop assistant',99],
 ].map(([h,p,m,l,d]) => ({h,p,m,l,d}));  // optional 5th item: pinyin as displayed (for long names)
 
 // Words built only from the list.
 const WORDS = [
   ['爱人','àiren','husband or wife'], ['德国人','Déguórén','German (person)'], ['韩国人','Hánguórén','Korean (person)'], ['法国人','Fǎguórén','French (person)'],
-  ['早上好','zǎoshang hǎo','good morning'], ['哪国人','nǎ guó rén','which country (are you) from?'], ['中国人','Zhōngguórén','Chinese (person)'], ['一斤','yì jīn','one jin (500 g)'],
-  ['这种','zhè zhǒng','this kind'], ['哪种','nǎ zhǒng','which kind'], ['一点半','yì diǎn bàn','half past one'], ['星期几','xīngqī jǐ','which day of the week?'],
-  ['生日快乐','shēngrì kuàilè','happy birthday'], ['您贵姓','nín guìxìng','what is your surname? (polite)'], ['几口人','jǐ kǒu rén','how many people (in a family)'], ['一台电脑','yì tái diànnǎo','one computer'],
   ['你好','nǐ hǎo','hello'], ['您好','nín hǎo','hello (polite)'], ['你们','nǐmen','you (plural)'], ['我们','wǒmen','we, us'],
   ['他们','tāmen','they (men / mixed)'], ['她们','tāmen','they (women)'], ['老师','lǎoshī','teacher'], ['谢谢','xièxie','thank you'],
   ['不客气','bú kèqi',"you're welcome"], ['对不起','duìbuqǐ','sorry'], ['没关系','méi guānxi',"it doesn't matter"], ['再见','zàijiàn','goodbye'],
@@ -349,25 +325,9 @@ const SENTS = [
   [['这','是','我','的','女朋友','。'],'Zhè shì wǒ de nǚ péngyou.','This is my girlfriend.'],
   [['她','是','我们','的','老师','。'],'Tā shì wǒmen de lǎoshī.','She is our teacher.'],
   [['这儿','是','图书馆','。'],'Zhèr shì túshūguǎn.','This is the library.'],
-  // Test words (lesson 6)
-  [['你','要','哪','种','面包','？'],'Nǐ yào nǎ zhǒng miànbāo?','Which kind of bread do you want?'],
-  [['这儿','有','两','个','银行','。'],'Zhèr yǒu liǎng gè yínháng.','There are two banks here.'],
-  [['食堂','在','教学楼','西边','。'],'Shítáng zài jiàoxuélóu xībian.','The dining hall is west of the teaching building.'],
-  [['你','想','吃','什么','水果','？'],'Nǐ xiǎng chī shénme shuǐguǒ?','What fruit do you want to eat?'],
-  [['新年','你','要','什么','礼物','？'],'Xīnnián nǐ yào shénme lǐwù?','What present do you want for New Year?'],
-  [['他','先','吃饭','然后','喝','咖啡','。'],'Tā xiān chī fàn ránhòu hē kāfēi.','He eats first, then drinks coffee.'],
-  [['他','每天','早上','八','点','半','上','汉语','课','。'],'Tā měi tiān zǎoshang bā diǎn bàn shàng Hànyǔ kè.','He has Chinese class at 8:30 every morning.'],
-  [['我','今天','下午','和','同学','见面','。'],'Wǒ jīntiān xiàwǔ hé tóngxué jiànmiàn.','I meet my classmate this afternoon.'],
+  // From the class test (Lesson 6 words only)
   [['我','和','我','姐姐','都','是','留学生','。'],'Wǒ hé wǒ jiějie dōu shì liúxuéshēng.','My older sister and I are both international students.'],
-  [['他','也','是','中国','人','。'],'Tā yě shì Zhōngguórén.','He is Chinese too.'],
   [['认识','你','很','高兴','。'],'Rènshi nǐ hěn gāoxìng.','Nice to meet you.'],
-  [['祝','你','生日','快乐','！'],'Zhù nǐ shēngrì kuàilè!','Happy birthday!'],
-  [['你','家','有','几','口','人','？'],'Nǐ jiā yǒu jǐ kǒu rén?','How many people are in your family?'],
-  [['星期天','我们','一起','去','公园','吧','。'],'Xīngqītiān wǒmen yìqǐ qù gōngyuán ba.',"Let's go to the park together on Sunday."],
-  [['现在','几','点','？'],'Xiànzài jǐ diǎn?','What time is it now?'],
-  [['你','妈妈','做','什么','工作','？'],'Nǐ māma zuò shénme gōngzuò?','What work does your mum do?'],
-  [['卫生间','在','哪儿','？'],'Wèishēngjiān zài nǎr?','Where is the toilet?'],
-  [['这','是','谁','的','书','？'],'Zhè shì shéi de shū?','Whose book is this?'],
   [['你','好','吗','？'],'Nǐ hǎo ma?','How are you?'],
   [['我','很','好','。'],'Wǒ hěn hǎo.',"I'm very well."],
   [['我','也','很','好','。'],'Wǒ yě hěn hǎo.',"I'm also very well."],
@@ -947,8 +907,10 @@ function pinyinOk(input, c){
   return got.letters.length > 0 && got.letters === want.letters && (!tonesRequired() || got.tones === want.tones);
 }
 
-const LESSONS = [1,2,3,4,5,6,99];  // 99 = words from the class test paper
-const lname = l => l === 99 ? '测试 Test words' : `第${l}课`;
+const LESSONS = [1,2,3,4,5,6];
+const LNAME = {1:['你好','Hello'], 2:['你好吗','How are you?'], 3:['你吃什么','What do you want to eat?'], 4:['多少钱','How much is it?'], 5:['图书馆在哪儿','Where is the library?'], 6:['我来介绍一下儿','Let me introduce']};
+const lname = l => `第${l}课`;
+const lfull = l => `第${l}课 ${LNAME[l][0]} · ${LNAME[l][1]}`;
 function lessons(){ return LESSONS.filter(n => $('#les'+n).checked); }
 function qlen(){ return +document.querySelector('input[name="len"]:checked').value; }
 function pools(){
@@ -1189,7 +1151,7 @@ function chars(){
   let h = '<p class="note" style="margin:0 0 14px">Tap a character or word to hear it, watch its stroke order and see words that use it. Red boxes are ones you have missed.</p>';
   for (const l of LESSONS) {
     if (!ls.includes(l)) continue;
-    h += `<div class="lesson-h"><span class="hz">${lname(l)}</span><span class="label">${CH.filter(c=>c.l===l).length} to learn</span></div><div class="cgrid">` +
+    h += `<div class="lesson-h"><span class="hz">${lfull(l)}</span><span class="label">${CH.filter(c=>c.l===l).length} to learn</span></div><div class="cgrid">` +
       CH.filter(c => c.l === l).map(c => `<button class="ccard ${weak[c.h] ? 'weak' : ''}" data-char="${c.h}" ${c.n > 1 ? `style="grid-column:span ${Math.min(c.n, 4)}"` : ''}>${charBox(c.h)}<span class="py">${c.py}</span><span class="mn">${esc(c.m)}</span></button>`).join('') + '</div>';
   }
   view.innerHTML = h;
